@@ -53,21 +53,21 @@
         <h3>Matrix controller</h3>
         <div class="sliders">
           <label>A<sub>11</sub>
-            <input type="range" id="a11" min="-3" max="3" value="2" step="0.1">
+            <input type="range" id="s-a11" min="-3" max="3" value="2" step="0.1">
           </label>
           <label>A<sub>12</sub>
-            <input type="range" id="a12" min="-3" max="3" value="1" step="0.1">
+            <input type="range" id="s-a12" min="-3" max="3" value="1" step="0.1">
           </label>
           <label>A<sub>21</sub>
-            <input type="range" id="a21" min="-3" max="3" value="1" step="0.1">
+            <input type="range" id="s-a21" min="-3" max="3" value="1" step="0.1">
           </label>
           <label>A<sub>22</sub>
-            <input type="range" id="a22" min="-3" max="3" value="2" step="0.1">
+            <input type="range" id="s-a22" min="-3" max="3" value="2" step="0.1">
           </label>
         </div>
         <p class="matrix-readout" id="matrixReadout"></p>
         <p class="hint">
-          Move sliders to change the matrix. Blue: original vector, Red: \(A\mathbf{v}\), Green: approximate eigenvector.
+          Move sliders to change the matrix. Blue: original basis, Cyan: transformed basis, Purple/Pink: eigenvectors.
         </p>
       </div>
 
@@ -102,76 +102,59 @@
 
   <!-- PLAYGROUND / EIGENVALUE CALCULATOR -->
   <section id="playground" class="glass">
-    <h2>Eigenvalue playground</h2>
-    <p>Enter a \(2 \times 2\) matrix to see its eigenvalues.</p>
+    <h2>Eigenvector Playground</h2>
+    <p class="hint">
+      Change the 2×2 matrix. The canvas shows A transforming the basis and eigenvectors (if real).
+    </p>
 
     <div class="playground-grid">
-      <div class="matrix-input">
-        <input id="m11" type="number" value="2">
-        <input id="m12" type="number" value="1">
-        <input id="m21" type="number" value="1">
-        <input id="m22" type="number" value="2">
+      <!-- Matrix input + button + table -->
+      <div>
+        <div class="matrix-input">
+          <input type="number" id="p-a11" value="2" step="0.1">
+          <input type="number" id="p-a12" value="1" step="0.1">
+          <input type="number" id="p-a21" value="1" step="0.1">
+          <input type="number" id="p-a22" value="3" step="0.1">
+        </div>
+        <p class="hint">Matrix A = [[a, b], [c, d]]</p>
+        <button class="cta small" id="compute-btn">Animate</button>
+
+        <div class="eigen-table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="eigen-table">
+              <tr>
+                <td>Eigenvalue λ₁</td>
+                <td>–</td>
+              </tr>
+              <tr>
+                <td>Eigenvector v₁</td>
+                <td>–</td>
+              </tr>
+              <tr>
+                <td>Eigenvalue λ₂</td>
+                <td>–</td>
+              </tr>
+              <tr>
+                <td>Eigenvector v₂</td>
+                <td>–</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <button class="cta small" onclick="computeEigen()">Compute</button>
-      <div class="result" id="eigenResult"></div>
+
+      <!-- Text result -->
+      <div class="result" id="eigen-result">
+        Enter values and press Animate.
+      </div>
     </div>
   </section>
-  <section id="playground" class="glass">
-  <h2>Eigenvector Playground</h2>
-  <p class="hint">
-    Adjust the 2×2 matrix and see its eigenvalues and eigenvectors update in real time.
-  </p>
-
-  <div class="playground-grid">
-    <!-- Matrix input -->
-    <div>
-      <div class="matrix-input">
-        <input type="number" id="a11" value="2" step="0.1">
-        <input type="number" id="a12" value="1" step="0.1">
-        <input type="number" id="a21" value="1" step="0.1">
-        <input type="number" id="a22" value="3" step="0.1">
-      </div>
-      <p class="hint">Matrix A = [[a, b], [c, d]]</p>
-      <button class="cta small" id="compute-btn">Compute</button>
-    </div>
-
-    <!-- Eigen info -->
-    <div class="result" id="eigen-result">
-      Enter values and press Compute.
-    </div>
-
-    <!-- Simple table -->
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody id="eigen-table">
-          <tr>
-            <td>Eigenvalue λ₁</td>
-            <td>–</td>
-          </tr>
-          <tr>
-            <td>Eigenvector v₁</td>
-            <td>–</td>
-          </tr>
-          <tr>
-            <td>Eigenvalue λ₂</td>
-            <td>–</td>
-          </tr>
-          <tr>
-            <td>Eigenvector v₂</td>
-            <td>–</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
 
   <!-- COMPARISON TABLE -->
   <section class="glass">
@@ -231,102 +214,5 @@
 
 <!-- Scripts -->
 <script src="script.js"></script>
-  <script>
-  function computeEigen2x2(a, b, c, d) {
-    const tr = a + d;
-    const det = a * d - b * c;
-    const disc = tr * tr - 4 * det;
-
-    if (disc < 0) {
-      return { complex: true };
-    }
-
-    const sqrtDisc = Math.sqrt(disc);
-    const lambda1 = (tr + sqrtDisc) / 2;
-    const lambda2 = (tr - sqrtDisc) / 2;
-
-    function eigenvector(lambda) {
-      // Solve (A - λI)v = 0
-      const m11 = a - lambda;
-      const m12 = b;
-      const m21 = c;
-      const m22 = d - lambda;
-
-      let v1, v2;
-      if (Math.abs(m11) + Math.abs(m12) > Math.abs(m21) + Math.abs(m22)) {
-        // use first row
-        if (Math.abs(m11) > Math.abs(m12)) {
-          v2 = 1;
-          v1 = -m12 / (m11 || 1e-9);
-        } else {
-          v1 = 1;
-          v2 = -m11 / (m12 || 1e-9);
-        }
-      } else {
-        // use second row
-        if (Math.abs(m21) > Math.abs(m22)) {
-          v2 = 1;
-          v1 = -m22 / (m21 || 1e-9);
-        } else {
-          v1 = 1;
-          v2 = -m21 / (m22 || 1e-9);
-        }
-      }
-
-      const len = Math.hypot(v1, v2) || 1;
-      return [v1 / len, v2 / len];
-    }
-
-    const v1 = eigenvector(lambda1);
-    const v2 = eigenvector(lambda2);
-
-    return { complex: false, lambda1, lambda2, v1, v2 };
-  }
-
-  document.getElementById('compute-btn').addEventListener('click', () => {
-    const a = parseFloat(document.getElementById('a11').value || 0);
-    const b = parseFloat(document.getElementById('a12').value || 0);
-    const c = parseFloat(document.getElementById('a21').value || 0);
-    const d = parseFloat(document.getElementById('a22').value || 0);
-
-    const res = computeEigen2x2(a, b, c, d);
-    const resultBox = document.getElementById('eigen-result');
-    const tableBody = document.getElementById('eigen-table');
-
-    if (res.complex) {
-      resultBox.textContent = 'This matrix has complex eigenvalues (not shown here).';
-      tableBody.innerHTML = `
-        <tr><td>Eigenvalues</td><td>Complex pair</td></tr>
-        <tr><td>Eigenvectors</td><td>Not displayed</td></tr>
-        <tr><td></td><td></td></tr>
-        <tr><td></td><td></td></tr>
-      `;
-      return;
-    }
-
-    resultBox.textContent =
-      'Real eigenvalues detected. Values and normalized eigenvectors are listed in the table.';
-
-    tableBody.innerHTML = `
-      <tr>
-        <td>Eigenvalue λ₁</td>
-        <td>${res.lambda1.toFixed(3)}</td>
-      </tr>
-      <tr>
-        <td>Eigenvector v₁</td>
-        <td>[${res.v1[0].toFixed(3)}, ${res.v1[1].toFixed(3)}]</td>
-      </tr>
-      <tr>
-        <td>Eigenvalue λ₂</td>
-        <td>${res.lambda2.toFixed(3)}</td>
-      </tr>
-      <tr>
-        <td>Eigenvector v₂</td>
-        <td>[${res.v2[0].toFixed(3)}, ${res.v2[1].toFixed(3)}]</td>
-      </tr>
-    `;
-  });
-</script>
-
 </body>
 </html>
