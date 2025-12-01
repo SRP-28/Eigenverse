@@ -1,105 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Real Life Applications of Eigenvalues & Eigenvectors</title>
-<link rel="stylesheet" href="style.css" />
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async
- src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
-<body>
-
-<header>
-  <h1>Real Life Applications of Eigenvalues and Eigenvectors</h1>
+<body class="dark-mode">
+<header class="glass">
+  <div class="logo">λ‑LAB</div>
   <nav>
     <a href="#home">Home</a>
     <a href="#basics">Basics</a>
     <a href="#applications">Applications</a>
-    <a href="#comparison">Comparison</a>
+    <a href="#playground">Playground</a>
     <a href="#references">References</a>
   </nav>
 </header>
 
 <main>
-  <section id="home">
-    <h2>Welcome</h2>
-    <p>Eigenvalues and eigenvectors are fundamental concepts in linear algebra with numerous real-world applications.<br>
-       This website introduces these concepts and explores where they are applied in science and engineering.</p>
+  <section id="home" class="hero">
+    <div class="hero-text">
+      <h1>Eigenverse</h1>
+      <p>Explore how eigenvalues and eigenvectors power search engines, AI, vibrations, and quantum worlds.</p>
+      <button class="cta" onclick="scrollToSection('basics')">Enter the Matrix</button>
+    </div>
+    <div class="hero-orbit">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
   </section>
 
-  <section id="basics">
-    <h2>Basics</h2>
-    <p>An eigenvector \\(\mathbf{v}\\) of a matrix \\(A\\) satisfies \\(A\mathbf{v} = \lambda \mathbf{v}\\), where \\(\lambda\\) is the eigenvalue.</p>
-    <p>Example matrix and vector:</p>
-    <pre>\\[
-    A = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix},\quad \mathbf{v} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}
-    \\]</pre>
-    <p>Try changing matrix elements below and see how a vector is transformed:</p>
+  <section id="basics" class="glass">
+    <h2>Core concept</h2>
+    <p>An eigenvector <span class="math">\( \mathbf{v} \)</span> of a matrix <span class="math">\( A \)</span> satisfies
+       <span class="math">\( A\mathbf{v} = \lambda \mathbf{v} \)</span>, where <span class="math">\( \lambda \)</span> is the eigenvalue.</p>
 
-    <div class="sliders">
-      <label>A<sub>11</sub>: <input type="range" id="a11" min="0" max="5" value="2" step="0.1"></label>
-      <label>A<sub>12</sub>: <input type="range" id="a12" min="0" max="5" value="1" step="0.1"></label>
-      <label>A<sub>21</sub>: <input type="range" id="a21" min="0" max="5" value="1" step="0.1"></label>
-      <label>A<sub>22</sub>: <input type="range" id="a22" min="0" max="5" value="2" step="0.1"></label>
+    <div class="matrix-panel">
+      <div>
+        <h3>Matrix controller</h3>
+        <div class="sliders">
+          <label>A<sub>11</sub> <input type="range" id="a11" min="-3" max="3" value="2" step="0.1"></label>
+          <label>A<sub>12</sub> <input type="range" id="a12" min="-3" max="3" value="1" step="0.1"></label>
+          <label>A<sub>21</sub> <input type="range" id="a21" min="-3" max="3" value="1" step="0.1"></label>
+          <label>A<sub>22</sub> <input type="range" id="a22" min="-3" max="3" value="2" step="0.1"></label>
+        </div>
+        <p class="matrix-readout" id="matrixReadout"></p>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="canvas" width="380" height="380"></canvas>
+        <p class="hint">Blue: original vector, Red: transformed vector, Green: approximate eigenvector.</p>
+      </div>
     </div>
-
-    <canvas id="canvas" width="400" height="400"></canvas>
-    <p><small>Blue vector is original; red vector is \\(A \mathbf{v}\\).</small></p>
   </section>
 
   <section id="applications">
-    <h2>Applications</h2>
-    <article>
-      <h3>Google PageRank</h3>
-      <p>Eigenvectors determine the importance of web pages in Google's ranking algorithm.</p>
-    </article>
-    <article>
-      <h3>Mechanical Vibrations</h3>
-      <p>Modes of vibration in structures arise from eigenvalues and eigenvectors of system matrices.</p>
-    </article>
-    <article>
-      <h3>Principal Component Analysis (PCA)</h3>
-      <p>Eigenvectors identify main directions of variance in data for dimensionality reduction in machine learning.</p>
-    </article>
-    <article>
-      <h3>Quantum Mechanics</h3>
-      <p>Energy levels of atoms correspond to eigenvalues of Hamiltonian operators.</p>
-    </article>
+    <h2>Real‑world applications</h2>
+    <div class="cards">
+      <article class="card neon-cyan">
+        <h3>Google PageRank</h3>
+        <p>Eigenvectors of the web link matrix give an importance score for each page, used in ranking search results.</p>
+      </article>
+      <article class="card neon-purple">
+        <h3>PCA & AI</h3>
+        <p>Principal Component Analysis uses eigenvectors of the covariance matrix to compress data and reduce noise in ML.</p>
+      </article>
+      <article class="card neon-blue">
+        <h3>Vibrations</h3>
+        <p>Bridges and buildings have natural vibration modes defined by eigenvalues and eigenvectors of stiffness matrices.</p>
+      </article>
+      <article class="card neon-pink">
+        <h3>Quantum states</h3>
+        <p>Eigenvalues of the Hamiltonian correspond to allowed energy levels; eigenvectors describe quantum states.</p>
+      </article>
+    </div>
   </section>
 
-  <section id="comparison">
-    <h2>Applications Comparison</h2>
-    <table>
-      <thead>
-        <tr><th>Field</th><th>Role of Eigenvalues/Eigenvectors</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Web Search</td><td>Rank pages by link importance (PageRank)</td></tr>
-        <tr><td>Data Science (PCA)</td><td>Find main data variance directions</td></tr>
-        <tr><td>Mechanical/Civil</td><td>Natural vibration modes/frequencies</td></tr>
-        <tr><td>Electrical</td><td>Stability of circuits and systems</td></tr>
-        <tr><td>Quantum Physics</td><td>Allowed energy levels</td></tr>
-      </tbody>
-    </table>
+  <section id="playground" class="glass">
+    <h2>Eigenvalue playground</h2>
+    <p>Type a 2×2 matrix and get eigenvalues instantly.</p>
+    <div class="playground-grid">
+      <div class="matrix-input">
+        <input id="m11" type="number" value="2">
+        <input id="m12" type="number" value="1">
+        <input id="m21" type="number" value="1">
+        <input id="m22" type="number" value="2">
+      </div>
+      <button class="cta small" onclick="computeEigen()">Compute</button>
+      <div class="result" id="eigenResult"></div>
+    </div>
   </section>
 
   <section id="references">
-    <h2>References</h2>
+    <h2>Sources</h2>
     <ul>
-      <li><a href="https://www.geeksforgeeks.org/engineering-mathematics/applications-of-eigenvalues-and-eigenvectors/" target="_blank">GeeksforGeeks Applications</a></li>
-      <li><a href="https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors" target="_blank">Wikipedia: Eigenvalues and eigenvectors</a></li>
-      <li><a href="https://www.intmath.com/matrices-determinants/8-applications-eigenvalues-eigenvectors.php" target="_blank">IntMath Applications</a></li>
-      <li><a href="https://setosa.io/ev/eigenvectors-and-eigenvalues/" target="_blank">Visual explanations at Setosa</a></li>
+      <li>Applications of eigenvalues and eigenvectors in engineering and computer science.[web:1][web:8][web:14]</li>
+      <li>Visual intuition for eigenvectors and eigenvalues.[web:16][web:23][web:26]</li>
+      <li>Dark/futuristic web design inspiration for the UI style.[web:19][web:20][web:25][web:28][web:31]</li>
     </ul>
   </section>
 </main>
 
-<footer>
-  <p>© 2025 College Project by Student</p>
+<footer class="glass">
+  <p>Eigenverse · College Math Project · 2025</p>
 </footer>
 
 <script src="script.js"></script>
 </body>
-</html>

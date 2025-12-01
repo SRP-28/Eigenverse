@@ -1,7 +1,13 @@
+// smooth scroll
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+
+// canvas visualization
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const width = canvas.width;
-const height = canvas.height;
+const w = canvas.width;
+const h = canvas.height;
 
 const sliders = {
   a11: document.getElementById('a11'),
@@ -10,80 +16,115 @@ const sliders = {
   a22: document.getElementById('a22')
 };
 
-// Original vector v:
-const v = [1, 1];
+const baseVector = [1, 1];
 
-// Draw coordinate axes
 function drawAxes() {
-  ctx.clearRect(0, 0, width, height);
-  ctx.strokeStyle = '#aaa';
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = '#1f2937';
   ctx.lineWidth = 1;
 
-  // X axis
   ctx.beginPath();
-  ctx.moveTo(0, height/2);
-  ctx.lineTo(width, height/2);
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
   ctx.stroke();
 
-  // Y axis
   ctx.beginPath();
-  ctx.moveTo(width/2, 0);
-  ctx.lineTo(width/2, height);
+  ctx.moveTo(w / 2, 0);
+  ctx.lineTo(w / 2, h);
   ctx.stroke();
 }
 
-// Draw vector from center
 function drawVector(vec, color) {
-  ctx.beginPath();
-  ctx.moveTo(width/2, height/2);
-  // Scale vector for better visibility
   const scale = 70;
-  ctx.lineTo(width/2 + vec[0]*scale, height/2 - vec[1]*scale);
+  const x0 = w / 2;
+  const y0 = h / 2;
+  const x1 = x0 + vec[0] * scale;
+  const y1 = y0 - vec[1] * scale;
+
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y1);
   ctx.strokeStyle = color;
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Draw arrowhead
-  const endX = width/2 + vec[0]*scale;
-  const endY = height/2 - vec[1]*scale;
-
+  const angle = Math.atan2(y0 - y1, x1 - x0);
+  const headLen = 10;
   ctx.beginPath();
-  ctx.moveTo(endX, endY);
-  ctx.lineTo(endX - 8, endY + 12);
-  ctx.lineTo(endX + 8, endY + 12);
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x1 - headLen * Math.cos(angle - 0.4), y1 + headLen * Math.sin(angle - 0.4));
+  ctx.lineTo(x1 - headLen * Math.cos(angle + 0.4), y1 + headLen * Math.sin(angle + 0.4));
   ctx.closePath();
   ctx.fillStyle = color;
   ctx.fill();
 }
 
-// Multiply matrix A with vector v
-function multiplyMatrixVector(A, vec) {
+function multiply(A, v) {
   return [
-    A[0][0]*vec[0] + A[0][1]*vec[1],
-    A[1][0]*vec[0] + A[1][1]*vec[1]
+    A[0][0] * v[0] + A[0][1] * v[1],
+    A[1][0] * v[0] + A[1][1] * v[1]
   ];
 }
 
-function update() {
-  drawAxes();
+// quick approximate eigenvector: power iteration
+function approximateEigenvector(A, iterations = 12) {
+  let v = [1, 0.3];
+  for (let i = 0; i < iterations; i++) {
+    v = multiply(A, v);
+    const norm = Math.hypot(v[0], v[1]) || 1;
+    v = [v[0] / norm, v[1] / norm];
+  }
+  return v;
+}
 
-  // Read matrix from sliders
-  let A = [
+function updateCanvas() {
+  const A = [
     [parseFloat(sliders.a11.value), parseFloat(sliders.a12.value)],
     [parseFloat(sliders.a21.value), parseFloat(sliders.a22.value)]
   ];
 
-  drawVector(v, 'blue'); // original vector in blue
+  drawAxes();
+  drawVector(baseVector, '#38bdf8'); // blue
+  const Av = multiply(A, baseVector);
+  drawVector(Av, '#fb7185'); // red
 
-  // Multiply A*v
-  const Av = multiplyMatrixVector(A, v);
-  drawVector(Av, 'red'); // transformed vector in red
+  // approximate dominant eigenvector in green
+  const eigVec = approximateEigenvector(A);
+  drawVector(eigVec, '#22c55e');
+
+  // update matrix readout
+  const readout = document.getElementById('matrixReadout');
+  readout.textContent =
+    `A ≈ [[${A[0][0].toFixed(1)}, ${A[0][1].toFixed(1)}], ` +
+    `[${A[1][0].toFixed(1)}, ${A[1][1].toFixed(1)}]]`;
 }
 
-// Attach listeners to sliders
-for (let key in sliders) {
-  sliders[key].addEventListener('input', update);
-}
+Object.values(sliders).forEach(sl => sl.addEventListener('input', updateCanvas));
+updateCanvas();
 
-// Initial draw
-update();
+// eigenvalue playground: analytic 2x2 solution
+function computeEigen() {
+  const m11 = parseFloat(document.getElementById('m11').value);
+  const m12 = parseFloat(document.getElementById('m12').value);
+  const m21 = parseFloat(document.getElementById('m21').value);
+  const m22 = parseFloat(document.getElementById('m22').value);
+
+  const trace = m11 + m22;
+  const det = m11 * m22 - m12 * m21;
+  const disc = trace * trace - 4 * det;
+
+  let text;
+  if (disc >= 0) {
+    const sqrtD = Math.sqrt(disc);
+    const lambda1 = (trace + sqrtD) / 2;
+    const lambda2 = (trace - sqrtD) / 2;
+    text = `Eigenvalues: λ₁ ≈ ${lambda1.toFixed(3)}, λ₂ ≈ ${lambda2.toFixed(3)}`;
+  } else {
+    const sqrtD = Math.sqrt(-disc);
+    const real = trace / 2;
+    const imag = sqrtD / 2;
+    text = `Complex eigenvalues: λ ≈ ${real.toFixed(3)} ± ${imag.toFixed(3)} i`;
+  }
+
+  document.getElementById('eigenResult').textContent = text;
+}
