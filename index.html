@@ -231,5 +231,102 @@
 
 <!-- Scripts -->
 <script src="script.js"></script>
+  <script>
+  function computeEigen2x2(a, b, c, d) {
+    const tr = a + d;
+    const det = a * d - b * c;
+    const disc = tr * tr - 4 * det;
+
+    if (disc < 0) {
+      return { complex: true };
+    }
+
+    const sqrtDisc = Math.sqrt(disc);
+    const lambda1 = (tr + sqrtDisc) / 2;
+    const lambda2 = (tr - sqrtDisc) / 2;
+
+    function eigenvector(lambda) {
+      // Solve (A - λI)v = 0
+      const m11 = a - lambda;
+      const m12 = b;
+      const m21 = c;
+      const m22 = d - lambda;
+
+      let v1, v2;
+      if (Math.abs(m11) + Math.abs(m12) > Math.abs(m21) + Math.abs(m22)) {
+        // use first row
+        if (Math.abs(m11) > Math.abs(m12)) {
+          v2 = 1;
+          v1 = -m12 / (m11 || 1e-9);
+        } else {
+          v1 = 1;
+          v2 = -m11 / (m12 || 1e-9);
+        }
+      } else {
+        // use second row
+        if (Math.abs(m21) > Math.abs(m22)) {
+          v2 = 1;
+          v1 = -m22 / (m21 || 1e-9);
+        } else {
+          v1 = 1;
+          v2 = -m21 / (m22 || 1e-9);
+        }
+      }
+
+      const len = Math.hypot(v1, v2) || 1;
+      return [v1 / len, v2 / len];
+    }
+
+    const v1 = eigenvector(lambda1);
+    const v2 = eigenvector(lambda2);
+
+    return { complex: false, lambda1, lambda2, v1, v2 };
+  }
+
+  document.getElementById('compute-btn').addEventListener('click', () => {
+    const a = parseFloat(document.getElementById('a11').value || 0);
+    const b = parseFloat(document.getElementById('a12').value || 0);
+    const c = parseFloat(document.getElementById('a21').value || 0);
+    const d = parseFloat(document.getElementById('a22').value || 0);
+
+    const res = computeEigen2x2(a, b, c, d);
+    const resultBox = document.getElementById('eigen-result');
+    const tableBody = document.getElementById('eigen-table');
+
+    if (res.complex) {
+      resultBox.textContent = 'This matrix has complex eigenvalues (not shown here).';
+      tableBody.innerHTML = `
+        <tr><td>Eigenvalues</td><td>Complex pair</td></tr>
+        <tr><td>Eigenvectors</td><td>Not displayed</td></tr>
+        <tr><td></td><td></td></tr>
+        <tr><td></td><td></td></tr>
+      `;
+      return;
+    }
+
+    resultBox.textContent =
+      'Real eigenvalues detected. Values and normalized eigenvectors are listed in the table.';
+
+    tableBody.innerHTML = `
+      <tr>
+        <td>Eigenvalue λ₁</td>
+        <td>${res.lambda1.toFixed(3)}</td>
+      </tr>
+      <tr>
+        <td>Eigenvector v₁</td>
+        <td>[${res.v1[0].toFixed(3)}, ${res.v1[1].toFixed(3)}]</td>
+      </tr>
+      <tr>
+        <td>Eigenvalue λ₂</td>
+        <td>${res.lambda2.toFixed(3)}</td>
+      </tr>
+      <tr>
+        <td>Eigenvector v₂</td>
+        <td>[${res.v2[0].toFixed(3)}, ${res.v2[1].toFixed(3)}]</td>
+      </tr>
+    `;
+  });
+</script>
+
 </body>
 </html>
