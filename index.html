@@ -116,6 +116,62 @@
       <div class="result" id="eigenResult"></div>
     </div>
   </section>
+  <section id="playground" class="glass">
+  <h2>Eigenvector Playground</h2>
+  <p class="hint">
+    Adjust the 2×2 matrix and see its eigenvalues and eigenvectors update in real time.
+  </p>
+
+  <div class="playground-grid">
+    <!-- Matrix input -->
+    <div>
+      <div class="matrix-input">
+        <input type="number" id="a11" value="2" step="0.1">
+        <input type="number" id="a12" value="1" step="0.1">
+        <input type="number" id="a21" value="1" step="0.1">
+        <input type="number" id="a22" value="3" step="0.1">
+      </div>
+      <p class="hint">Matrix A = [[a, b], [c, d]]</p>
+      <button class="cta small" id="compute-btn">Compute</button>
+    </div>
+
+    <!-- Eigen info -->
+    <div class="result" id="eigen-result">
+      Enter values and press Compute.
+    </div>
+
+    <!-- Simple table -->
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody id="eigen-table">
+          <tr>
+            <td>Eigenvalue λ₁</td>
+            <td>–</td>
+          </tr>
+          <tr>
+            <td>Eigenvector v₁</td>
+            <td>–</td>
+          </tr>
+          <tr>
+            <td>Eigenvalue λ₂</td>
+            <td>–</td>
+          </tr>
+          <tr>
+            <td>Eigenvector v₂</td>
+            <td>–</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 
   <!-- COMPARISON TABLE -->
   <section class="glass">
