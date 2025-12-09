@@ -53,21 +53,21 @@
         <h3>Matrix controller</h3>
         <div class="sliders">
           <label>A<sub>11</sub>
-            <input type="range" id="a11" min="-3" max="3" value="2" step="0.1">
+            <input type="range" id="s-a11" min="-3" max="3" value="2" step="0.1">
           </label>
           <label>A<sub>12</sub>
-            <input type="range" id="a12" min="-3" max="3" value="1" step="0.1">
+            <input type="range" id="s-a12" min="-3" max="3" value="1" step="0.1">
           </label>
           <label>A<sub>21</sub>
-            <input type="range" id="a21" min="-3" max="3" value="1" step="0.1">
+            <input type="range" id="s-a21" min="-3" max="3" value="1" step="0.1">
           </label>
           <label>A<sub>22</sub>
-            <input type="range" id="a22" min="-3" max="3" value="2" step="0.1">
+            <input type="range" id="s-a22" min="-3" max="3" value="2" step="0.1">
           </label>
         </div>
         <p class="matrix-readout" id="matrixReadout"></p>
         <p class="hint">
-          Move sliders to change the matrix. Blue: original vector, Red: \(A\mathbf{v}\), Green: approximate eigenvector.
+          Move sliders to change the matrix. Blue: original basis, Cyan: transformed basis, Purple/Pink: eigenvectors.
         </p>
       </div>
 
@@ -83,95 +83,78 @@
     <div class="cards">
       <article class="card neon-cyan">
         <h3>Google PageRank</h3>
-        <p>Eigenvectors of a huge link matrix give each page an importance score used in ranking search results.[web:1][web:14]</p>
+        <p>Eigenvectors of a huge link matrix give each page an importance score used in ranking search results.</p>
       </article>
       <article class="card neon-purple">
         <h3>PCA & AI</h3>
-        <p>Principal Component Analysis uses eigenvectors of the covariance matrix to find main directions of variance for compression and noise reduction in data.[web:1][web:8]</p>
+        <p>Principal Component Analysis uses eigenvectors of the covariance matrix to find main directions of variance for compression and noise reduction in data.</p>
       </article>
       <article class="card neon-blue">
         <h3>Vibrating structures</h3>
-        <p>Bridges and buildings have natural modes of vibration described by eigenvalues and eigenvectors of stiffness and mass matrices.[web:1][web:10][web:11]</p>
+        <p>Bridges and buildings have natural modes of vibration described by eigenvalues and eigenvectors of stiffness and mass matrices.</p>
       </article>
       <article class="card neon-pink">
         <h3>Quantum energy levels</h3>
-        <p>In quantum mechanics, allowed energy levels are eigenvalues of the Hamiltonian operator, and eigenvectors describe the corresponding states.[web:3][web:8]</p>
+        <p>In quantum mechanics, allowed energy levels are eigenvalues of the Hamiltonian operator, and eigenvectors describe the corresponding states.</p>
       </article>
     </div>
   </section>
 
   <!-- PLAYGROUND / EIGENVALUE CALCULATOR -->
   <section id="playground" class="glass">
-    <h2>Eigenvalue playground</h2>
-    <p>Enter a \(2 \times 2\) matrix to see its eigenvalues.</p>
+    <h2>Eigenvector Playground</h2>
+    <p class="hint">
+      Change the 2×2 matrix. The canvas shows A transforming the basis and eigenvectors (if real).
+    </p>
 
     <div class="playground-grid">
-      <div class="matrix-input">
-        <input id="m11" type="number" value="2">
-        <input id="m12" type="number" value="1">
-        <input id="m21" type="number" value="1">
-        <input id="m22" type="number" value="2">
+      <!-- Matrix input + button + table -->
+      <div>
+        <div class="matrix-input">
+          <input type="number" id="p-a11" value="2" step="0.1">
+          <input type="number" id="p-a12" value="1" step="0.1">
+          <input type="number" id="p-a21" value="1" step="0.1">
+          <input type="number" id="p-a22" value="3" step="0.1">
+        </div>
+        <p class="hint">Matrix A = [[a, b], [c, d]]</p>
+        <button class="cta small" id="compute-btn">Animate</button>
+
+        <div class="eigen-table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="eigen-table">
+              <tr>
+                <td>Eigenvalue λ₁</td>
+                <td>–</td>
+              </tr>
+              <tr>
+                <td>Eigenvector v₁</td>
+                <td>–</td>
+              </tr>
+              <tr>
+                <td>Eigenvalue λ₂</td>
+                <td>–</td>
+              </tr>
+              <tr>
+                <td>Eigenvector v₂</td>
+                <td>–</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <button class="cta small" onclick="computeEigen()">Compute</button>
-      <div class="result" id="eigenResult"></div>
+
+      <!-- Text result -->
+      <div class="result" id="eigen-result">
+        Enter values and press Animate.
+      </div>
     </div>
   </section>
-  <section id="playground" class="glass">
-  <h2>Eigenvector Playground</h2>
-  <p class="hint">
-    Adjust the 2×2 matrix and see its eigenvalues and eigenvectors update in real time.
-  </p>
-
-  <div class="playground-grid">
-    <!-- Matrix input -->
-    <div>
-      <div class="matrix-input">
-        <input type="number" id="a11" value="2" step="0.1">
-        <input type="number" id="a12" value="1" step="0.1">
-        <input type="number" id="a21" value="1" step="0.1">
-        <input type="number" id="a22" value="3" step="0.1">
-      </div>
-      <p class="hint">Matrix A = [[a, b], [c, d]]</p>
-      <button class="cta small" id="compute-btn">Compute</button>
-    </div>
-
-    <!-- Eigen info -->
-    <div class="result" id="eigen-result">
-      Enter values and press Compute.
-    </div>
-
-    <!-- Simple table -->
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody id="eigen-table">
-          <tr>
-            <td>Eigenvalue λ₁</td>
-            <td>–</td>
-          </tr>
-          <tr>
-            <td>Eigenvector v₁</td>
-            <td>–</td>
-          </tr>
-          <tr>
-            <td>Eigenvalue λ₂</td>
-            <td>–</td>
-          </tr>
-          <tr>
-            <td>Eigenvector v₂</td>
-            <td>–</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
 
   <!-- COMPARISON TABLE -->
   <section class="glass">
@@ -186,27 +169,27 @@
       <tbody>
         <tr>
           <td>Web search</td>
-          <td>Importance score of pages in the link network (PageRank vector).[web:1][web:14][web:16]</td>
+          <td>Importance score of pages in the link network (PageRank vector).</td>
         </tr>
         <tr>
           <td>Data science (PCA)</td>
-          <td>Principal components capture directions of maximum variance for dimensionality reduction.[web:1][web:8]</td>
+          <td>Principal components capture directions of maximum variance for dimensionality reduction.</td>
         </tr>
         <tr>
           <td>Mechanical & civil</td>
-          <td>Natural frequencies and mode shapes of structures from eigenvalue problems.[web:1][web:10][web:11]</td>
+          <td>Natural frequencies and mode shapes of structures from eigenvalue problems.</td>
         </tr>
         <tr>
           <td>Electrical & control</td>
-          <td>System stability and transient response from eigenvalues of state matrices.[web:1][web:7][web:12]</td>
+          <td>System stability and transient response from eigenvalues of state matrices.</td>
         </tr>
         <tr>
           <td>Markov chains</td>
-          <td>Steady‑state distribution as eigenvector of the transition matrix with eigenvalue 1.[web:1][web:7][web:14]</td>
+          <td>Steady‑state distribution as eigenvector of the transition matrix with eigenvalue 1.</td>
         </tr>
         <tr>
           <td>Quantum physics</td>
-          <td>Discrete energy levels as eigenvalues of Hamiltonian operators.[web:3][web:8]</td>
+          <td>Discrete energy levels as eigenvalues of Hamiltonian operators.</td>
         </tr>
       </tbody>
     </table>
@@ -216,11 +199,11 @@
   <section id="references" class="glass">
     <h2>References</h2>
     <ul>
-      <li>Applications of eigenvalues and eigenvectors in engineering and mathematics.[web:1][web:5][web:11][web:14]</li>
-      <li>Concepts and theory of eigenvalues and eigenvectors.[web:3][web:7][web:9][web:17]</li>
-      <li>Uses of eigenvectors in computer science and data analysis.[web:8][web:12]</li>
-      <li>Visual and interactive explanations of eigenvalues and eigenvectors.[web:16][web:23][web:26]</li>
-      <li>Dark and futuristic UI inspiration for design style.[web:19][web:20][web:25][web:28][web:31]</li>
+      <li>Applications of eigenvalues and eigenvectors in engineering and mathematics.</li>
+      <li>Concepts and theory of eigenvalues and eigenvectors.</li>
+      <li>Uses of eigenvectors in computer science and data analysis.</li>
+      <li>Visual and interactive explanations of eigenvalues and eigenvectors.</li>
+      <li>Dark and futuristic UI inspiration for design style.</li>
     </ul>
   </section>
 </main>
@@ -231,102 +214,5 @@
 
 <!-- Scripts -->
 <script src="script.js"></script>
-  <script>
-  function computeEigen2x2(a, b, c, d) {
-    const tr = a + d;
-    const det = a * d - b * c;
-    const disc = tr * tr - 4 * det;
-
-    if (disc < 0) {
-      return { complex: true };
-    }
-
-    const sqrtDisc = Math.sqrt(disc);
-    const lambda1 = (tr + sqrtDisc) / 2;
-    const lambda2 = (tr - sqrtDisc) / 2;
-
-    function eigenvector(lambda) {
-      // Solve (A - λI)v = 0
-      const m11 = a - lambda;
-      const m12 = b;
-      const m21 = c;
-      const m22 = d - lambda;
-
-      let v1, v2;
-      if (Math.abs(m11) + Math.abs(m12) > Math.abs(m21) + Math.abs(m22)) {
-        // use first row
-        if (Math.abs(m11) > Math.abs(m12)) {
-          v2 = 1;
-          v1 = -m12 / (m11 || 1e-9);
-        } else {
-          v1 = 1;
-          v2 = -m11 / (m12 || 1e-9);
-        }
-      } else {
-        // use second row
-        if (Math.abs(m21) > Math.abs(m22)) {
-          v2 = 1;
-          v1 = -m22 / (m21 || 1e-9);
-        } else {
-          v1 = 1;
-          v2 = -m21 / (m22 || 1e-9);
-        }
-      }
-
-      const len = Math.hypot(v1, v2) || 1;
-      return [v1 / len, v2 / len];
-    }
-
-    const v1 = eigenvector(lambda1);
-    const v2 = eigenvector(lambda2);
-
-    return { complex: false, lambda1, lambda2, v1, v2 };
-  }
-
-  document.getElementById('compute-btn').addEventListener('click', () => {
-    const a = parseFloat(document.getElementById('a11').value || 0);
-    const b = parseFloat(document.getElementById('a12').value || 0);
-    const c = parseFloat(document.getElementById('a21').value || 0);
-    const d = parseFloat(document.getElementById('a22').value || 0);
-
-    const res = computeEigen2x2(a, b, c, d);
-    const resultBox = document.getElementById('eigen-result');
-    const tableBody = document.getElementById('eigen-table');
-
-    if (res.complex) {
-      resultBox.textContent = 'This matrix has complex eigenvalues (not shown here).';
-      tableBody.innerHTML = `
-        <tr><td>Eigenvalues</td><td>Complex pair</td></tr>
-        <tr><td>Eigenvectors</td><td>Not displayed</td></tr>
-        <tr><td></td><td></td></tr>
-        <tr><td></td><td></td></tr>
-      `;
-      return;
-    }
-
-    resultBox.textContent =
-      'Real eigenvalues detected. Values and normalized eigenvectors are listed in the table.';
-
-    tableBody.innerHTML = `
-      <tr>
-        <td>Eigenvalue λ₁</td>
-        <td>${res.lambda1.toFixed(3)}</td>
-      </tr>
-      <tr>
-        <td>Eigenvector v₁</td>
-        <td>[${res.v1[0].toFixed(3)}, ${res.v1[1].toFixed(3)}]</td>
-      </tr>
-      <tr>
-        <td>Eigenvalue λ₂</td>
-        <td>${res.lambda2.toFixed(3)}</td>
-      </tr>
-      <tr>
-        <td>Eigenvector v₂</td>
-        <td>[${res.v2[0].toFixed(3)}, ${res.v2[1].toFixed(3)}]</td>
-      </tr>
-    `;
-  });
-</script>
-
 </body>
 </html>

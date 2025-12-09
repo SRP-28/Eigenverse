@@ -1,22 +1,25 @@
 // Smooth scroll for "Enter the Matrix" button
 function scrollToSection(id) {
-  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
-// Canvas visualization: original vector, transformed vector, approximate eigenvector
+// ===== BASICS SECTION: canvas + sliders =====
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const w = canvas.width;
 const h = canvas.height;
 
+// Sliders from BASICS section (s- prefix)
 const sliders = {
-  a11: document.getElementById('a11'),
-  a12: document.getElementById('a12'),
-  a21: document.getElementById('a21'),
-  a22: document.getElementById('a22')
+  a11: document.getElementById('s-a11'),
+  a12: document.getElementById('s-a12'),
+  a21: document.getElementById('s-a21'),
+  a22: document.getElementById('s-a22')
 };
 
-// Base vector
 const baseVector = [1, 1];
 
 function drawAxes() {
@@ -87,54 +90,171 @@ function approximateEigenvector(A, iterations = 12) {
   return v;
 }
 
-function updateCanvas() {
+function updateCanvasBasics() {
   const A = [
     [parseFloat(sliders.a11.value), parseFloat(sliders.a12.value)],
     [parseFloat(sliders.a21.value), parseFloat(sliders.a22.value)]
   ];
 
   drawAxes();
-  drawVector(baseVector, '#38bdf8'); // blue
+  drawVector(baseVector, '#38bdf8'); // blue original
   const Av = multiply(A, baseVector);
-  drawVector(Av, '#fb7185');        // red
+  drawVector(Av, '#fb7185');        // red transformed
 
   const eigVec = approximateEigenvector(A);
-  drawVector(eigVec, '#22c55e');    // green
+  drawVector(eigVec, '#22c55e');    // green approx eigenvector
 
   const readout = document.getElementById('matrixReadout');
   readout.textContent =
-    `A ≈ [[${A[0][0].toFixed(1)}, ${A[0][1].toFixed(1)}], ` +
-    `[${A[1][0].toFixed(1)}, ${A[1][1].toFixed(1)}]]`;
+    'A ≈ [[' +
+    A[0][0].toFixed(1) + ', ' + A[0][1].toFixed(1) + '], ' +
+    '[' + A[1][0].toFixed(1) + ', ' + A[1][1].toFixed(1) + ']]';
 }
 
-Object.values(sliders).forEach(sl => sl.addEventListener('input', updateCanvas));
-updateCanvas();
+Object.values(sliders).forEach(sl => sl.addEventListener('input', updateCanvasBasics));
+updateCanvasBasics();
 
-// Eigenvalue calculator for 2x2 matrix: analytic formula
-function computeEigen() {
-  const m11 = parseFloat(document.getElementById('m11').value);
-  const m12 = parseFloat(document.getElementById('m12').value);
-  const m21 = parseFloat(document.getElementById('m21').value);
-  const m22 = parseFloat(document.getElementById('m22').value);
+// ===== PLAYGROUND: analytic eigenvalues + canvas animation + table =====
 
-  const trace = m11 + m22;
-  const det = m11 * m22 - m12 * m21;
-  const disc = trace * trace - 4 * det;
+// reuse computeEigen2x2 from analytic formula
+function computeEigen2x2(a, b, c, d) {
+  const tr = a + d;
+  const det = a * d - b * c;
+  const disc = tr * tr - 4 * det;
 
-  let text;
-  if (isNaN(trace) || isNaN(det)) {
-    text = "Please enter valid numbers.";
-  } else if (disc >= 0) {
-    const sqrtD = Math.sqrt(disc);
-    const lambda1 = (trace + sqrtD) / 2;
-    const lambda2 = (trace - sqrtD) / 2;
-    text = `Eigenvalues: λ₁ ≈ ${lambda1.toFixed(3)}, λ₂ ≈ ${lambda2.toFixed(3)}`;
-  } else {
-    const sqrtD = Math.sqrt(-disc);
-    const real = trace / 2;
-    const imag = sqrtD / 2;
-    text = `Complex eigenvalues: λ ≈ ${real.toFixed(3)} ± ${imag.toFixed(3)} i`;
+  if (disc < 0) {
+    return { complex: true };
   }
 
-  document.getElementById('eigenResult').textContent = text;
+  const sqrtDisc = Math.sqrt(disc);
+  const lambda1 = (tr + sqrtDisc) / 2;
+  const lambda2 = (tr - sqrtDisc) / 2;
+
+  function eigenvector(lambda) {
+    const m11 = a - lambda;
+    const m12 = b;
+    const m21 = c;
+    const m22 = d - lambda;
+
+    let v1, v2;
+
+    if (Math.abs(m11) + Math.abs(m12) > Math.abs(m21) + Math.abs(m22)) {
+      if (Math.abs(m11) > Math.abs(m12)) {
+        v2 = 1;
+        v1 = -m12 / (m11 || 1e-9);
+      } else {
+        v1 = 1;
+        v2 = -m11 / (m12 || 1e-9);
+      }
+    } else {
+      if (Math.abs(m21) > Math.abs(m22)) {
+        v2 = 1;
+        v1 = -m22 / (m21 || 1e-9);
+      } else {
+        v1 = 1;
+        v2 = -m21 / (m22 || 1e-9);
+      }
+    }
+
+    const len = Math.hypot(v1, v2) || 1;
+    return [v1 / len, v2 / len];
+  }
+
+  const v1 = eigenvector(lambda1);
+  const v2 = eigenvector(lambda2);
+
+  return { complex: false, lambda1, lambda2, v1, v2 };
 }
+
+// re-use canvas but with interpolation (for playground button)
+function drawScenePlayground(A, eig, t) {
+  ctx.clearRect(0, 0, w, h);
+
+  const [a, b, c, d] = A;
+
+  // axes
+  drawAxes();
+
+  // Original basis
+  drawVector([1, 0], '#4b5563');
+  drawVector([0, 1], '#4b5563');
+
+  // Transformed basis
+  const e1 = [1, 0];
+  const e2 = [0, 1];
+  const Ae1 = [a * e1[0] + b * e1[1], c * e1[0] + d * e1[1]];
+  const Ae2 = [a * e2[0] + b * e2[1], c * e2[0] + d * e2[1]];
+
+  const iAe1 = [e1[0] + t * (Ae1[0] - e1[0]), e1[1] + t * (Ae1[1] - e1[1])];
+  const iAe2 = [e2[0] + t * (Ae2[0] - e2[0]), e2[1] + t * (Ae2[1] - e2[1])];
+
+  drawVector(iAe1, '#22d3ee');
+  drawVector(iAe2, '#38bdf8');
+
+  // Eigenvectors
+  if (!eig.complex) {
+    drawVector(eig.v1, '#a855f7');
+    drawVector(eig.v2, '#fb37ff');
+  }
+}
+
+function animateMatrixPlayground(A, eig) {
+  const duration = 800;
+  const start = performance.now();
+
+  function frame(now) {
+    const t = Math.min(1, (now - start) / duration);
+    drawScenePlayground(A, eig, t);
+    if (t < 1) requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// Button + table
+document.getElementById('compute-btn').addEventListener('click', () => {
+  const a = parseFloat(document.getElementById('p-a11').value || 0);
+  const b = parseFloat(document.getElementById('p-a12').value || 0);
+  const c = parseFloat(document.getElementById('p-a21').value || 0);
+  const d = parseFloat(document.getElementById('p-a22').value || 0);
+
+  const res = computeEigen2x2(a, b, c, d);
+  const resultBox = document.getElementById('eigen-result');
+  const tableBody = document.getElementById('eigen-table');
+
+  if (res.complex) {
+    resultBox.textContent = 'This matrix has complex eigenvalues (not drawn on canvas).';
+    tableBody.innerHTML = `
+      <tr><td>Eigenvalues</td><td>Complex pair</td></tr>
+      <tr><td>Eigenvectors</td><td>Not displayed</td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+    `;
+    animateMatrixPlayground([a, b, c, d], res);
+    return;
+  }
+
+  resultBox.textContent =
+    'Real eigenvalues detected. Basis and eigenvectors are animated on the canvas.';
+
+  tableBody.innerHTML = `
+    <tr>
+      <td>Eigenvalue λ₁</td>
+      <td>${res.lambda1.toFixed(3)}</td>
+    </tr>
+    <tr>
+      <td>Eigenvector v₁</td>
+      <td>[${res.v1[0].toFixed(3)}, ${res.v1[1].toFixed(3)}]</td>
+    </tr>
+    <tr>
+      <td>Eigenvalue λ₂</td>
+      <td>${res.lambda2.toFixed(3)}</td>
+    </tr>
+    <tr>
+      <td>Eigenvector v₂</td>
+      <td>[${res.v2[0].toFixed(3)}, ${res.v2[1].toFixed(3)}]</td>
+    </tr>
+  `;
+
+  animateMatrixPlayground([a, b, c, d], res);
+});
